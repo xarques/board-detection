@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.fxml.FXMLLoader;
 
-public class BoardRecognition extends Application
+public class ColorRecognition extends Application
 {
 	/**
 	 * The main class for a JavaFX application. It creates and handles the main
@@ -29,10 +29,9 @@ public class BoardRecognition extends Application
 		try
 		{
 			// load the FXML resource
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("BoardRecognition.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("ColorRecognition.fxml"));
 			BorderPane root = (BorderPane) loader.load();
 			
-			// set a whitesmoke background
 			root.setStyle("-fx-background-color: whitesmoke;");
 			// create and style a scene
 			Scene scene = new Scene(root, 1600, 1200);
@@ -44,7 +43,7 @@ public class BoardRecognition extends Application
 			// show the GUI
 			primaryStage.show();
 			
-			BoardRecognitionController controller = loader.getController();
+			ColorRecognitionController controller = loader.getController();
 			controller.init();
 		}
 		catch (Exception e)
