@@ -37,7 +37,7 @@ public class Utils {
         }
         Mat spectrumRGB = new Mat();
         // Convert HSV image to RGB format
-        Imgproc.cvtColor(spectrumHsv, spectrumRGB, Imgproc.COLOR_HSV2RGB_FULL, 4);
+        Imgproc.cvtColor(spectrumHsv, spectrumRGB, Imgproc.COLOR_HSV2BGR_FULL, 4);
         return spectrumRGB;
     }
 
@@ -224,7 +224,8 @@ public class Utils {
 		List<List<Rect>> allGroupedRectangles  = Utils.groupRectangles(allRectangles);
 		List<List<Rect>> sortedGroupedRectangles = Utils.sortGroupsOfRectangles(allGroupedRectangles);
 		// Keep only the 2 numbered rectangles family 
-		for (int i = 0; i < 2 && i < sortedGroupedRectangles.size(); i++) {
+		int max = 10;
+		for (int i = 0; i < max && i < sortedGroupedRectangles.size(); i++) {
 			filteredRectangles.addAll(sortedGroupedRectangles.get(i));
 		}
 		return filteredRectangles;

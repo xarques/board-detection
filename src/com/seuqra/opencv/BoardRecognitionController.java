@@ -7,175 +7,126 @@ import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 
 /**
  * The controller associated with the only view of our application. The
- * application logic is implemented here. It handles the button for
- * starting/stopping the camera, the acquired video stream, the relative
- * controls and the image segmentation process.
+ * application logic is implemented here.
  * 
- * @author <a href="mailto:luigi.derussis@polito.it">Luigi De Russis</a>
- * @version 1.5 (2015-11-26)
- * @since 1.0 (2015-01-13)
+ * @author <a href="mailto:xavier.arques@seuqra.com">Xavier Arques</a>
+ * @version 1.0 (2016-05-01)
  * 
  */
 public class BoardRecognitionController {
 	// the FXML area for showing the current frame
 	@FXML
 	private ImageView originalFrame;
-	// the FXML area for showing the mask
+	// the FXML area for showing the masks
 	@FXML
-	private ImageView maskImage0;
+	private ImageView maskImage0,maskImage1,maskImage2,maskImage3,maskImage4,maskImage5,maskImage6,maskImage7,maskImage8;
 	@FXML
-	private ImageView maskImage1;
+	private ImageView maskImage9,maskImage10,maskImage11,maskImage12,maskImage13,maskImage14,maskImage15,maskImage16,maskImage17;
+	// the FXML area for showing the spectrums
 	@FXML
-	private ImageView maskImage2;
+	private ImageView spectrum0,spectrum1,spectrum2,spectrum3,spectrum4,spectrum5,spectrum6,spectrum7,spectrum8;
 	@FXML
-	private ImageView maskImage3;
-	@FXML
-	private ImageView maskImage4;
-	@FXML
-	private ImageView maskImage5;
-	@FXML
-	private ImageView maskImage6;
-	@FXML
-	private ImageView maskImage7;
-	@FXML
-	private ImageView maskImage8;
-	@FXML
-	private ImageView maskImage9;
-	@FXML
-	private ImageView maskImage10;
-	@FXML
-	private ImageView maskImage11;
-	@FXML
-	private ImageView maskImage12;
-	@FXML
-	private ImageView maskImage13;
-	@FXML
-	private ImageView maskImage14;
-	@FXML
-	private ImageView maskImage15;
-	@FXML
-	private ImageView maskImage16;
-	@FXML
-	private ImageView maskImage17;
-
+	private ImageView spectrum9,spectrum10,spectrum11,spectrum12,spectrum13,spectrum14,spectrum15,spectrum16,spectrum17;
 
 	List<Scalar> minValuesList = new ArrayList<Scalar>();
 	List<Scalar> maxValuesList = new ArrayList<Scalar>();
-
-	@FXML
-	private ImageView spectrum0;
-	@FXML
-	private ImageView spectrum1;
-	@FXML
-	private ImageView spectrum2;
-	@FXML
-	private ImageView spectrum3;
-	@FXML
-	private ImageView spectrum4;
-	@FXML
-	private ImageView spectrum5;
-	@FXML
-	private ImageView spectrum6;
-	@FXML
-	private ImageView spectrum7;
-	@FXML
-	private ImageView spectrum8;
-	@FXML
-	private ImageView spectrum9;
-	@FXML
-	private ImageView spectrum10;
-	@FXML
-	private ImageView spectrum11;
-	@FXML
-	private ImageView spectrum12;
-	@FXML
-	private ImageView spectrum13;
-	@FXML
-	private ImageView spectrum14;
-	@FXML
-	private ImageView spectrum15;
-	@FXML
-	private ImageView spectrum16;
-	@FXML
-	private ImageView spectrum17;
-
+	
+	private ImageView[] maskImages;
+	private ImageView[] spectrums;
+	
 	/**
 	 * Init the controller, at start time
 	 */
 	protected void init() {
+		initFX();
 		startRecognition();
 	}
 
-	private void buildScalar(List<Scalar> minValuesList,
+	private void initFX() {
+		// Those arrays cannot be initialized earlier because all @FXML variables are assigned after the creation of maskImages and spectrums arrays
+		maskImages = new ImageView[18];
+		maskImages[0] = maskImage0;
+		maskImages[1] = maskImage1;
+		maskImages[2] = maskImage2;
+		maskImages[3] = maskImage3;
+		maskImages[4] = maskImage4;
+		maskImages[5] = maskImage5;
+		maskImages[6] = maskImage6;
+		maskImages[7] = maskImage7;
+		maskImages[8] = maskImage8;
+		maskImages[9] = maskImage9;
+		maskImages[10] = maskImage10;
+		maskImages[11] = maskImage11;
+		maskImages[12] = maskImage12;
+		maskImages[13] = maskImage13;
+		maskImages[14] = maskImage14;
+		maskImages[15] = maskImage15;
+		maskImages[16] = maskImage16;
+		maskImages[17] = maskImage17;
+		
+		spectrums = new ImageView[18];
+		spectrums[0] = spectrum0;
+		spectrums[1] = spectrum1;
+		spectrums[2] = spectrum2;
+		spectrums[3] = spectrum3;
+		spectrums[4] = spectrum4;
+		spectrums[5] = spectrum5;
+		spectrums[6] = spectrum6;
+		spectrums[7] = spectrum7;
+		spectrums[8] = spectrum8;
+		spectrums[9] = spectrum9;
+		spectrums[10] = spectrum10;
+		spectrums[11] = spectrum11;
+		spectrums[12] = spectrum12;
+		spectrums[13] = spectrum13;
+		spectrums[14] = spectrum14;
+		spectrums[15] = spectrum15;
+		spectrums[16] = spectrum16;
+		spectrums[17] = spectrum17;	
+	}
+	
+	/*
+	 * Build a list of scalar representing all the color spectrum
+	 * @param minValuesList The list to fill with the min spectrum colors
+	 * @param maxValuesList The list to fill with the max spectrum colors
+	 */
+	private void buildSpectrumScalars(List<Scalar> minValuesList,
 			List<Scalar> maxValuesList) {
 		int range = 10;
-		for (int i = 0; i <= 180; i = i + range) {
+		for (int i = 0; i < 180; i = i + range) {
 			//minValuesList.add(new Scalar(i, 92, 49));
 			minValuesList.add(new Scalar(i, 92, 49));
 			maxValuesList.add(new Scalar(i + range - 1, 255, 255));
 		}
-		System.out.println("BoardRecognitionController.buildScalar() minValuesList = "+ minValuesList);
-		System.out.println("BoardRecognitionController.buildScalar() maxValuesList = "+ maxValuesList);
 	}
 
 	/**
-	 * The action triggered by pushing the button on the GUI
+	 * 
 	 */
-	@FXML
 	private void startRecognition() {
 		// set a fixed width for all the image to show and preserve image ratio
 		Utils.imageViewProperties(this.originalFrame, 1000);
 		//Utils.imageViewProperties(this.originalFrame, 500);
 		int width = 100;
-		Utils.imageViewProperties(this.maskImage0, width);
-		Utils.imageViewProperties(this.maskImage1, width);
-		Utils.imageViewProperties(this.maskImage2, width);
-		Utils.imageViewProperties(this.maskImage3, width);
-		Utils.imageViewProperties(this.maskImage4, width);
-		Utils.imageViewProperties(this.maskImage5, width);
-		Utils.imageViewProperties(this.maskImage6, width);
-		Utils.imageViewProperties(this.maskImage7, width);
-		Utils.imageViewProperties(this.maskImage8, width);
-		Utils.imageViewProperties(this.maskImage9, width);
-		Utils.imageViewProperties(this.maskImage10, width);
-		Utils.imageViewProperties(this.maskImage11, width);
-		Utils.imageViewProperties(this.maskImage12, width);
-		Utils.imageViewProperties(this.maskImage13, width);
-		Utils.imageViewProperties(this.maskImage14, width);
-		Utils.imageViewProperties(this.maskImage15, width);
-		Utils.imageViewProperties(this.maskImage16, width);
-		Utils.imageViewProperties(this.maskImage17, width);
 
-		Utils.imageViewProperties(this.spectrum0, width);
-		Utils.imageViewProperties(this.spectrum1, width);
-		Utils.imageViewProperties(this.spectrum2, width);
-		Utils.imageViewProperties(this.spectrum3, width);
-		Utils.imageViewProperties(this.spectrum4, width);
-		Utils.imageViewProperties(this.spectrum5, width);
-		Utils.imageViewProperties(this.spectrum6, width);
-		Utils.imageViewProperties(this.spectrum7, width);
-		Utils.imageViewProperties(this.spectrum8, width);
-		Utils.imageViewProperties(this.spectrum9, width);
-		Utils.imageViewProperties(this.spectrum10, width);
-		Utils.imageViewProperties(this.spectrum11, width);
-		Utils.imageViewProperties(this.spectrum12, width);
-		Utils.imageViewProperties(this.spectrum13, width);
-		Utils.imageViewProperties(this.spectrum14, width);
-		Utils.imageViewProperties(this.spectrum15, width);
-		Utils.imageViewProperties(this.spectrum16, width);
-		Utils.imageViewProperties(this.spectrum17, width);
+		System.out.println("BoardRecognitionController.startRecognition() maskImage0 " + maskImage0);
+		System.out.println("BoardRecognitionController.startRecognition() maskImage[0] " + maskImages[0]);
+		for (int i = 0; i < maskImages.length; i++) {
+			Utils.imageViewProperties(maskImages[i], width);
+		}
 
-		buildScalar(minValuesList, maxValuesList);
+		for (int i = 0; i < spectrums.length; i++) {
+			Utils.imageViewProperties(spectrums[i], width);
+		}
+
+		buildSpectrumScalars(minValuesList, maxValuesList);
 		/*
 		 * // Postit orange //minValuesList.add(new Scalar(9, 34, 47));
 		 * //maxValuesList.add(new Scalar(15, 255, 255)); // Postit orange
@@ -234,12 +185,12 @@ public class BoardRecognitionController {
 				allRectangles.addAll(rectangles);
 				
 				// show the partial output
-				ImageView fxImage = getImage(i);
+				ImageView fxImage = maskImages[i];
 				if (fxImage != null) {
 					Utils.onFXThread(fxImage.imageProperty(),
 							Utils.mat2Image(mask));
 				}
-				ImageView spectrumImage = getSpectrum(i);
+				ImageView spectrumImage = spectrums[i];
 				if (spectrumImage != null) {
 					Utils.onFXThread(spectrumImage.imageProperty(),
 							Utils.mat2Image(Utils.getSpectrum(minColor, maxColor)));
@@ -257,89 +208,5 @@ public class BoardRecognitionController {
 		}
 
 		return imageToShow;
-	}
-
-	private ImageView getImage(int i) {
-		switch (i) {
-		case 0:
-			return maskImage0;
-		case 1:
-			return maskImage1;
-		case 2:
-			return maskImage2;
-		case 3:
-			return maskImage3;
-		case 4:
-			return maskImage4;
-		case 5:
-			return maskImage5;
-		case 6:
-			return maskImage6;
-		case 7:
-			return maskImage7;
-		case 8:
-			return maskImage8;
-		case 9:
-			return maskImage9;
-		case 10:
-			return maskImage10;
-		case 11:
-			return maskImage11;
-		case 12:
-			return maskImage12;
-		case 13:
-			return maskImage13;
-		case 14:
-			return maskImage14;
-		case 15:
-			return maskImage15;
-		case 16:
-			return maskImage16;
-		case 17:
-			return maskImage17;
-		}
-		return null;
-	}
-
-	private ImageView getSpectrum(int i) {
-		switch (i) {
-		case 0:
-			return spectrum0;
-		case 1:
-			return spectrum1;
-		case 2:
-			return spectrum2;
-		case 3:
-			return spectrum3;
-		case 4:
-			return spectrum4;
-		case 5:
-			return spectrum5;
-		case 6:
-			return spectrum6;
-		case 7:
-			return spectrum7;
-		case 8:
-			return spectrum8;
-		case 9:
-			return spectrum9;
-		case 10:
-			return spectrum10;
-		case 11:
-			return spectrum11;
-		case 12:
-			return spectrum12;
-		case 13:
-			return spectrum13;
-		case 14:
-			return spectrum14;
-		case 15:
-			return spectrum15;
-		case 16:
-			return spectrum16;
-		case 17:
-			return spectrum17;
-		}
-		return null;
 	}
 }
