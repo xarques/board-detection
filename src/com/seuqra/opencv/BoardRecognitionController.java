@@ -13,8 +13,8 @@ import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 
 /**
- * The controller associated with the only view of our application. The
- * application logic is implemented here.
+ * The controller associated with the only view of our application.
+ * The application logic is implemented here.
  * 
  * @author <a href="mailto:xavier.arques@seuqra.com">Xavier Arques</a>
  * @version 1.0 (2016-05-01)
@@ -41,6 +41,9 @@ public class BoardRecognitionController {
 	private ImageView[] maskImages;
 	private ImageView[] spectrums;
 	
+    private static final int MAX_RECTANGLES_GROUPS = 11;
+	private static final int CONTOUR_THICKNESS = 8;
+
 	/**
 	 * Init the controller, at start time
 	 */
@@ -157,8 +160,15 @@ public class BoardRecognitionController {
 		// minValuesList.add(new Scalar(167, 140, 49));
 		// maxValuesList.add(new Scalar(177, 255, 255));
 		//final Mat image = Imgcodecs.imread("resources/postits.jpg");
-		final Mat image = Imgcodecs.imread("resources/board.jpg");
+		//final Mat image = Imgcodecs.imread("resources/board.jpg");
 		//final Mat image = Imgcodecs.imread("resources/board2.jpg");
+		//final Mat image = Imgcodecs.imread("resources/2postitPink.jpg");
+		//final Mat image = Imgcodecs.imread("resources/boardAC7.jpg");
+		//final Mat image = Imgcodecs.imread("resources/board_20160513_085406.jpg");
+		final Mat image = Imgcodecs.imread("resources/Office Lens 20160610-181315.jpg");
+		
+		
+		
 		Image imageToShow = extractColors(image, minValuesList, maxValuesList);
 
 		originalFrame.setImage(imageToShow);
@@ -196,8 +206,8 @@ public class BoardRecognitionController {
 							Utils.mat2Image(Utils.getSpectrum(minColor, maxColor)));
 				}
 			}
-			List<Rect> filteredRectangles = Utils.keepNumerousRectangles(allRectangles);		
-			Utils.drawContours(filteredRectangles, image);
+			List<Rect> filteredRectangles = Utils.keepLargestNumberOfRectangles(allRectangles, MAX_RECTANGLES_GROUPS);		
+			Utils.drawContours(filteredRectangles, image, CONTOUR_THICKNESS);
 			// convert the Mat object (OpenCV) to Image (JavaFX)
 			imageToShow = Utils.mat2Image(image);
 

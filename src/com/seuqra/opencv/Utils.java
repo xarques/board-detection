@@ -25,7 +25,9 @@ import org.opencv.imgproc.Imgproc;
 
 public class Utils {
 	
-    static Mat getSpectrum(Scalar minColor, Scalar maxColor) {
+	private static final int SURFACE_APPROXIMATION_PERCENTAGE = 10;
+
+	static Mat getSpectrum(Scalar minColor, Scalar maxColor) {
         double minH = minColor.val[0];
         double maxH = maxColor.val[0];
 
@@ -69,11 +71,10 @@ public class Utils {
 		List<Rect> currentGroup = new ArrayList<Rect>();
 		groupedBySurfaceRectangles.add(currentGroup);
 		for (Rect rect : rectangles) {
-			int approximation = 10;
-			int widthMax = rect.width + (rect.width * approximation) / 100;
-			int widthMin = rect.width - (rect.width * approximation) / 100;
-			int heightMax = rect.height + (rect.height * approximation) / 100;
-			int heightMin = rect.height - (rect.height * approximation) / 100;
+			int widthMax = rect.width + (rect.width * SURFACE_APPROXIMATION_PERCENTAGE) / 100;
+			int widthMin = rect.width - (rect.width * SURFACE_APPROXIMATION_PERCENTAGE) / 100;
+			int heightMax = rect.height + (rect.height * SURFACE_APPROXIMATION_PERCENTAGE) / 100;
+			int heightMin = rect.height - (rect.height * SURFACE_APPROXIMATION_PERCENTAGE) / 100;
 			int surfaceMin = widthMin * heightMin;
 			int surfaceMax = widthMax * heightMax;
 			if (currentGroup.size() != 0) {
@@ -99,16 +100,16 @@ public class Utils {
 	 * @param frame
 	 *            the original {@link Mat} image to be used for drawing the
 	 *            objects contours
+	 * @param contourThickness the thickness of the rectangles to display
 	 * @return the {@link Mat} image with the objects contours framed
 	 */
-	static Mat drawContours(List<Rect> rectangles, Mat frame) {
+	static Mat drawContours(List<Rect> rectangles, Mat frame, int contourThickness) {
 		Scalar color = new Scalar(250, 0, 0);
-		int thickness = 8;
 				
 		for (Rect rect : rectangles) {
 			Imgproc.rectangle(frame, new Point(rect.x, rect.y), new Point(
 					rect.x + rect.width, rect.y + rect.height), color,
-					thickness);
+					contourThickness);
 		}
 
 		return frame;
@@ -178,10 +179,10 @@ public class Utils {
 			@Override
 			public int compare(List<Rect> listRect1, List<Rect> listRect2) {
 
-				if (listRect1.size() < listRect2.size()) {
-					return 1;
-				} else if (listRect1.size() < listRect2.size()) {
+				if (listRect1.size() > listRect2.size()) {
 					return -1;
+				} else if (listRect1.size() < listRect2.size()) {
+					return 1;
 				} else {
 					return 0;
 				}
@@ -217,15 +218,14 @@ public class Utils {
 	}
 
 
-	static List<Rect> keepNumerousRectangles(List<Rect> rectangles) {
+	static List<Rect> keepLargestNumberOfRectangles(List<Rect> rectangles, int numberOfGroups) {
 		List<Rect> filteredRectangles = new ArrayList<Rect>();
 		List<Rect> allRectangles = Utils.sortRectangles(rectangles);
 		allRectangles = Utils.filterRectangles(allRectangles);
 		List<List<Rect>> allGroupedRectangles  = Utils.groupRectangles(allRectangles);
 		List<List<Rect>> sortedGroupedRectangles = Utils.sortGroupsOfRectangles(allGroupedRectangles);
-		// Keep only the 2 numbered rectangles family 
-		int max = 10;
-		for (int i = 0; i < max && i < sortedGroupedRectangles.size(); i++) {
+
+		for (int i = 0; i < numberOfGroups && i < sortedGroupedRectangles.size(); i++) {
 			filteredRectangles.addAll(sortedGroupedRectangles.get(i));
 		}
 		return filteredRectangles;

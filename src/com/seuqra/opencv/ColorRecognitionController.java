@@ -28,6 +28,7 @@ import org.opencv.imgcodecs.Imgcodecs;
  * 
  */
 public class ColorRecognitionController {
+	protected static final int CONTOUR_THICKNESS = 8;
 	// FXML camera button
 	@FXML
 	private Button cameraButton;
@@ -117,7 +118,7 @@ public class ColorRecognitionController {
 				//rectangles = Utils.keepNumerousRectangles(rectangles);		
 				
 				// Display image with contours
-				Image imageToShow = Utils.mat2Image(Utils.drawContours(rectangles, originalImage));
+				Image imageToShow = Utils.mat2Image(Utils.drawContours(rectangles, originalImage, CONTOUR_THICKNESS));
 				originalFrame.setImage(imageToShow);
 				
 				// JavaFX updates
